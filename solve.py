@@ -1,8 +1,7 @@
 import argparse
-from tracemalloc import start
 
 def parse_args() -> str:
-    parser = argparse.ArgumentParser(description='Help solve the NYT Wordle.')
+    parser = argparse.ArgumentParser(description='Help solve the NYT Wordle. Good starting words: irate adieu steak tread table audio.')
     parser.add_argument('starting_word', type=str, help='The word you started with.')
 
     args = parser.parse_args()
@@ -11,6 +10,56 @@ def parse_args() -> str:
       raise ValueError("Invalid starting word")
 
     return args.starting_word
+
+def get_score(word: str) -> float:
+    score_sheet = {
+        'e': 56.88,
+        'a': 43.31,
+        'r': 38.64,
+        'i': 38.45,
+        'o': 36.51,
+        't': 35.43,
+        'n': 33.92,
+        's': 29.23,
+        'l': 27.98,
+        'c': 23.13,
+        'u': 18.51,
+        'd': 17.25,
+        'p': 16.14,
+        'm': 15.36,
+        'h': 15.31,
+        'g': 12.59,
+        'b': 10.56,
+        'f': 9.24,
+        'y': 9.06,
+        'w': 6.57,
+        'k': 5.61,
+        'v': 5.13,
+        'x': 1.48,
+        'z': 1.39,
+        'j': 1.00,
+        'q': 1.00,
+    }
+
+    score = 0.0
+    letters_seen = set()
+    for letter in word:
+        if letter not in letters_seen:
+            score += score_sheet[letter]
+        letters_seen.add(letter)
+
+    return score
+
+def get_best_word(word_list: list) -> str:
+    best_score = 0.0
+    best_word = word_list[0]
+    for word in word_list:
+        score = get_score(word)
+        if score > best_score:
+            best_score = score
+            best_word = word
+
+    return best_word
 
 def ask_about_word(word: str) -> tuple:
     word_colors = []
@@ -46,10 +95,7 @@ def check_row(word: str, word_list: list) -> bool:
     update_word_list(word_list, word_colors, word)
 
     return False
-
-def get_best_word(word_list: list) -> str:
-    return word_list[0]
-
+    
 def solve(starting_word: str, word_list: list) -> bool:
     word = starting_word
     for round in range(6):

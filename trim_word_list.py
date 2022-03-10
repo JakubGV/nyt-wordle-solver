@@ -1,4 +1,7 @@
-def main():
+def trim_word_list():
+  """
+  trim_word_list trims a lists of words to only contain 5 letter words for the Wordle.
+  """
   file = 'word_list.txt'
 
   with open(file, 'r') as word_file:
@@ -15,4 +18,4 @@ def main():
     word_file.write(contents)
 
 if __name__ == '__main__':
-  main()
+  trim_word_list()
