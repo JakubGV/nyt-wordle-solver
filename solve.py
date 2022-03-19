@@ -1,3 +1,9 @@
+import argparse
+
+def parse_args() -> None:
+    parser = argparse.ArgumentParser(description='Helps you solve the NYT Wordle. Good starting words: irate adieu steak tread table audio.')
+    parser.parse_args()
+
 def get_score(word: str) -> float:
     score_sheet = {
         'e': 56.88,
@@ -91,11 +97,11 @@ def handle_duplicate(word_list, word_colors, word, duplicate_letter):
                 indices_to_delete.add(j)
         
         elif word_colors[index_a] == 'g' and word_colors[index_b] == 'y':
-            if word_list_word[index_a] != word[index_a] or count_letter(word_list_word, word[index_b]) < 2:
+            if word_list_word[index_a] != word[index_a] or (count_letter(word_list_word, word[index_b]) < 2 or word[index_b] == word_list_word[index_b]):
                 indices_to_delete.add(j)
         
         elif word_colors[index_a] == 'y' and word_colors[index_b] =='g':
-            if count_letter(word_list_word, word[index_a]) < 2 or word_list_word[index_b] != word[index_b]:
+            if (count_letter(word_list_word, word[index_a]) < 2 or word[index_a] == word_list_word[index_a]) or word_list_word[index_b] != word[index_b]:
                 indices_to_delete.add(j)
 
         elif word_colors[index_a] == 'g' and word_colors[index_b] == 'b':
@@ -107,15 +113,15 @@ def handle_duplicate(word_list, word_colors, word, duplicate_letter):
                 indices_to_delete.add(j)
 
         elif word_colors[index_a] == 'y' and word_colors[index_b] == 'y':
-            if count_letter(word_list_word, word[index_a]) < 2:
+            if count_letter(word_list_word, word[index_a]) < 2 or word[index_a] == word_list_word[index_a] or word[index_b] == word_list_word[index_b]:
                 indices_to_delete.add(j)
 
         elif word_colors[index_a] == 'y' and word_colors[index_b] == 'b':
-            if count_letter(word_list_word, word[index_a]) != 1:
+            if word[index_a] == word_list_word[index_a] or count_letter(word_list_word, word[index_a]) != 1:
                 indices_to_delete.add(j)
         
         elif word_colors[index_a] == 'b' and word_colors[index_b] == 'y':
-            if count_letter(word_list_word, word[index_a]) != 1:
+            if count_letter(word_list_word, word[index_a]) != 1 or word[index_b] == word_list_word[index_b]:
                 indices_to_delete.add(j)
         
         elif word_colors[index_a] == 'b' and word_colors[index_b] == 'b':
@@ -139,7 +145,7 @@ def update_word_list(word_list: list, word_colors, word: str) -> None:
             elif word[i] != duplicate_letter:
                 if color == 'g' and word_list_word[i] != word[i]:
                     indices_to_delete.add(j)
-                elif color == 'y' and word[i] not in word_list_word:
+                elif color == 'y' and (word[i] not in word_list_word or word[i] == word_list_word[i]):
                     indices_to_delete.add(j)
                 elif color == 'b' and word[i] in word_list_word:
                         indices_to_delete.add(j)
@@ -164,7 +170,7 @@ def check_row(word: str, word_list: list) -> bool:
     update_word_list(word_list, word_colors, word)
 
     return False
-    
+
 def solve(word_list: list) -> bool:
     for round in range(6):
         word = input("What word have you entered? ")
@@ -184,12 +190,19 @@ def solve(word_list: list) -> bool:
     return False
 
 def main():
+    parse_args()
+    
     # Open the word_list file to get guesses from
     with open('word_list.txt', 'r') as word_file:
         word_list = [word.strip() for word in word_file]
 
+    print('-' * 35)
+    print("Starting the Wordle solver...")
+    
     if not solve(word_list):
         print("Could not solve today's Wordle :(")
+
+    print('-' * 35)
 
 if __name__ == '__main__':
     main()
