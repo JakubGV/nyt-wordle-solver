@@ -2972,6 +2972,7 @@ reran
 rerun
 resea
 reset
+resew
 resin
 resit
 rests
