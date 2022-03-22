@@ -84,17 +84,17 @@ def count_letter(word: str, letter: str) -> int:
 
     return count
 
-def delete_indices(word_list: list, indices_to_delete: set) -> None:
+def delete_indices(word_list: list, indices_to_delete: set) -> list:
     """
-    delete_indices removes the indices in `indices_to_delete` from the `word_list`.
+    delete_indices removes the indices in `indices_to_delete` from the `word_list` and returns an updated word list.
 
     :param word_list: the word list to delete from
     :param indices_to_delete: a set of integer indices to delete from the word_list
+    :return: the updated word list
     """
-    num_deleted = 0
-    for index in indices_to_delete:
-        del word_list[index - num_deleted]
-        num_deleted += 1
+    updated_word_list = [word for i, word in enumerate(word_list) if i not in indices_to_delete]
+    
+    return updated_word_list
 
 def find_duplicate_letter(word: str) -> str:
     """
@@ -112,15 +112,16 @@ def find_duplicate_letter(word: str) -> str:
 
     return ''
 
-def handle_duplicate(word_list: list, word_colors: tuple, word: str, duplicate_letter: str) -> None:
+def handle_duplicate(word_list: list, word_colors: tuple, word: str, duplicate_letter: str) -> list:
     """
-    handle_duplicate handles the case of a word that has duplicate letters in it.
-    This function is needed because of special rules pertaining to double letters.
+    handle_duplicate handles the case of words with duplicate letters and returns an updated word list.
+    This function is needed because of special considerations needed for double letters.
 
     :param word_list: the word_list to search through
     :param word_colors: the colors of the word guessed
     :param word: the word guessed
     :param duplicate_letter: the letter that appears twice
+    :return: the updated word list
     """
     index_a = -1
     index_b = -1
@@ -190,20 +191,22 @@ def handle_duplicate(word_list: list, word_colors: tuple, word: str, duplicate_l
                 if word[index_a] in word_list_word:
                     indices_to_delete.add(j)
         
-    delete_indices(word_list, indices_to_delete)
+    updated_word_list = delete_indices(word_list, indices_to_delete)
 
-def update_word_list(word_list: list, word_colors: tuple, word: str) -> None:
+    return updated_word_list
+
+def update_word_list(word_list: list, word_colors: tuple, word: str) -> list:
     """
     update_word_list updates the `word_list` according to the colors returned by the Wordle.
 
     :param word_list: the word_list to update
     :param word_colors: the colors of the letters returned by the Wordle
     :param word: the word that was entered into the Wordle
+    :return: the updated word list
     """
     duplicate_letter = find_duplicate_letter(word)
     if duplicate_letter != '':
         handle_duplicate(word_list, word_colors, word, duplicate_letter)
-
     indices_to_delete = set()
     for i, color in enumerate(word_colors):
         for j, word_list_word in enumerate(word_list):
@@ -223,9 +226,11 @@ def update_word_list(word_list: list, word_colors: tuple, word: str) -> None:
                 
                 # Remove any word that has the letter since it shouldn't
                 elif color == 'b' and word[i] in word_list_word:
-                        indices_to_delete.add(j)
+                    indices_to_delete.add(j)
             
-    delete_indices(word_list, indices_to_delete)
+    updated_word_list = delete_indices(word_list, indices_to_delete)
+
+    return updated_word_list
 
 def ask_about_word(word: str) -> tuple:
     """
@@ -241,23 +246,19 @@ def ask_about_word(word: str) -> tuple:
 
     return tuple(word_colors)
 
-def check_row(word: str, word_list: list) -> bool:
+def get_colors(word: str, word_list: list) -> list:
     """
-    check_row asks if the word guessed was the Wordle, gets the colors for that word, and updates the word list.
+    get_colors gets the colors for a guessed word, and returns the updated word list.
 
     :param word: the word entered
     :param word_list: the word list to search from
-    :return: True if the word was the Wordle, False otherwise
+    :return: the updated word list
     """
-    ans = input(f"Was '{word}' the Wordle (Y or N)? ")
-    if ans.lower() == 'y':
-        return True
-    else:
-        word_colors = ask_about_word(word)
+    word_colors = ask_about_word(word)
 
-    update_word_list(word_list, word_colors, word)
+    updated_word_list = update_word_list(word_list, word_colors, word)
 
-    return False
+    return updated_word_list
 
 def solve(word_list: list) -> bool:
     """
@@ -269,9 +270,13 @@ def solve(word_list: list) -> bool:
     for round in range(6):
         word = input("What word have you entered? ")
         word = word.lower()
-        if check_row(word, word_list):
+        ans = input(f"Was '{word}' the Wordle (Y or N)? ").lower()
+        
+        if ans == 'y':
             print(f"Congratulations!\nWordle solved in {round+1} tries.")
             return True
+        else:
+            word_list = get_colors(word, word_list)
         
         if len(word_list) == 0:
             print("Uh-oh. Word list is empty.")

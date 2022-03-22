@@ -3124,6 +3124,7 @@ saute
 saved
 saver
 saves
+savor
 savvy
 sawed
 saxon
