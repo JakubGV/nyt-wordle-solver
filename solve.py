@@ -172,10 +172,14 @@ def handle_duplicate(word_list: list, word_colors: tuple, word: str, duplicate_l
 
             if word_colors[index_b] == 'b':
                 # Remove any word that has more than 1 instance of the letter
-                if count_letter(word_list_word, word[index_a]) > 1:
+                if count_letter(word_list_word, word[index_a]) > 1 or word[index_b] == word_list_word[index_b]:
                     indices_to_delete.add(j)
 
         if word_colors[index_a] == 'b':
+            # Remove any word with the letter at this position
+            if word[index_a] == word[word_list_word]:
+                indices_to_delete.add(j)
+
             if word_colors[index_b] == 'g':
                 # Remove any word that has more than 1 instance of the letter or doesn't have the second letter in the right spot
                 if count_letter(word_list_word, word[index_a]) > 1 or word_list_word[index_b] != word[index_b]:
@@ -206,7 +210,7 @@ def update_word_list(word_list: list, word_colors: tuple, word: str) -> list:
     """
     duplicate_letter = find_duplicate_letter(word)
     if duplicate_letter != '':
-        handle_duplicate(word_list, word_colors, word, duplicate_letter)
+        word_list = handle_duplicate(word_list, word_colors, word, duplicate_letter)
     indices_to_delete = set()
     for i, color in enumerate(word_colors):
         for j, word_list_word in enumerate(word_list):
