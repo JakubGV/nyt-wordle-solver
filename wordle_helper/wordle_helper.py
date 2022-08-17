@@ -55,12 +55,14 @@ class WordleHelper:
         :return: the highest scoring word
         """
         word_scores = [self._get_word_score(word) for word in self.word_list]
+        if len(word_scores) == 0:
+            return ''
         best_score = max(word_scores)
         best_word = self.word_list[word_scores.index(best_score)]
 
         return best_word
 
-    def _find_duplicate_letter(word: str) -> str:
+    def _find_duplicate_letter(self, word: str) -> str:
         """
         _find_duplicate_letter finds a duplicate letter in `word`.
 
@@ -100,7 +102,6 @@ class WordleHelper:
         :param word_guessed: the word that was guessed
         :param word_colors: the colors of the word guessed
         :param duplicate_letter: the letter that appears twice
-        :return: the updated word list
         """
         index_a = -1
         index_b = -1
@@ -188,11 +189,11 @@ class WordleHelper:
         """
         duplicate_letter = self._find_duplicate_letter(word_guessed)
         if duplicate_letter != '':
-            word_list = self._handle_duplicate(word_guessed, word_colors, duplicate_letter)
+            self._handle_duplicate(word_guessed, word_colors, duplicate_letter)
         
         indices_to_delete = set()
         for i, color in enumerate(word_colors):
-            for j, word_list_word in enumerate(word_list):
+            for j, word_list_word in enumerate(self.word_list):
                 # Remove the word that wasn't the Wordle
                 if word_list_word == word_guessed:
                     indices_to_delete.add(j)
@@ -225,6 +226,6 @@ class WordleHelper:
         :return: the best word to guess next
         """
         self._update_word_list(word_guessed, word_colors)
-        best_guess = self._get_best_word
+        best_guess = self._get_best_word()
 
         return best_guess
